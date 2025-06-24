@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Spotify Auth</title>
+  <title>Spotify Auth Demo</title>
 </head>
 <body>
   <button id="login">Login with Spotify</button>
 
   <script>
-    const clientId = 'YOUR_SPOTIFY_CLIENT_ID'; // replace this
-    const redirectUri = 'http://localhost:5500/'; // must match Spotify app redirect
+    const clientId = 'b2bee85f176549668d85bc8c6d9c232c';
+    const redirectUri = 'http://localhost:5500/';
     const scopes = 'user-read-private user-read-email';
 
     document.getElementById('login').addEventListener('click', () => {
@@ -16,15 +16,22 @@
       window.location.href = authUrl;
     });
 
-    // Handle redirect with token
+    // Token catcher
     window.onload = () => {
       if (window.location.hash) {
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
-        const accessToken = params.get('access_token');
-        if (accessToken) {
-          document.body.innerHTML = `<h2>Logged In</h2><p>Access Token: ${accessToken}</p>`;
-          // You can now use fetch() with this token to call Spotify Web API
+        const token = params.get('access_token');
+        if (token) {
+          document.body.innerHTML = `<h2>✅ Logged In</h2><p>Token:</p><code>${token}</code>`;
+          // Example API call
+          fetch('https://api.spotify.com/v1/me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+          })
+          .then(res => res.json())
+          .then(data => {
+            document.body.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          });
         }
       }
     };
