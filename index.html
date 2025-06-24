@@ -1,36 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Spotify Auth Demo</title>
+  <meta charset="UTF-8">
+  <title>Spotify Auth - One File</title>
 </head>
 <body>
-  <button id="login">Login with Spotify</button>
+  <button onclick="login()">Login with Spotify</button>
+  <div id="user"></div>
 
   <script>
-    const clientId = 'b2bee85f176549668d85bc8c6d9c232c';
-    const redirectUri = 'https://ihasbrains010.github.io/ai-playlist-creater/';
+    const client_id = 'b2bee85f176549668d85bc8c6d9c232c'; // YOUR ID
+    const redirect_uri = 'http://127.0.0.1:5500'; // OR wherever you're hosting
     const scopes = 'user-read-private user-read-email';
 
-    document.getElementById('login').addEventListener('click', () => {
-      const authUrl = `https://accounts.spotify.com/authorize?response_type=token&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-      window.location.href = authUrl;
-    });
+    function login() {
+      const auth_url = 'https://accounts.spotify.com/authorize' +
+        `?response_type=token` +
+        `&client_id=${client_id}` +
+        `&scope=${encodeURIComponent(scopes)}` +
+        `&redirect_uri=${encodeURIComponent(redirect_uri)}`;
 
-    // Token catcher
+      window.location.href = auth_url;
+    }
+
     window.onload = () => {
       if (window.location.hash) {
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
         const token = params.get('access_token');
+
         if (token) {
-          document.body.innerHTML = `<h2>✅ Logged In</h2><p>Token:</p><code>${token}</code>`;
-          // Example API call
           fetch('https://api.spotify.com/v1/me', {
             headers: { 'Authorization': 'Bearer ' + token }
           })
           .then(res => res.json())
           .then(data => {
-            document.body.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            document.getElementById('user').innerHTML = `
+              <h2>🎧 Logged In</h2>
+              <p><b>Name:</b> ${data.display_name}</p>
+              <p><b>Email:</b> ${data.email}</p>
+              <p><b>Country:</b> ${data.country}</p>
+              <p><b>ID:</b> ${data.id}</p>
+            `;
+          })
+          .catch(err => {
+            document.getElementById('user').innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
           });
         }
       }
